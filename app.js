@@ -39,6 +39,17 @@ app.delete('/api/characters/:id', async (req, res) => {
     res.status(500).json({ error: '캐릭터 삭제 중 오류 발생' });
   }
 });
+app.get('/api/characters/:id',async (req,res)=>{
+    const characterId = req.params.id;
+    try {
+        const find = await playerCollections.findOne({ character_id: characterId });
+        if(!find)
+            return res.status(404).json({error:"해당 ID를 가진 캐릭터가 존재하지 않습니다"});
+        res.json(find);
+      } catch (error) {
+        res.status(500).json({ error: '캐릭터 검색 중 오류 발생' });
+      }
+})
 
 async function startServer() {
   try {
