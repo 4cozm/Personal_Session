@@ -17,9 +17,11 @@ export const getItemList = async (req, res) => {
 export const findItem = async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await item.findOne({ item_code:id });
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+id);
+    const result = await item.findOne({ item_code:id }).select('-_id item_name item_stat');
     !result ? res.status(404).json('아이템이 없습니다') : res.json(result);
   } catch (error) {
+    console.error(error); 
     res.status(500).json({ error: '아이템 정보 가져오는중 오류 발생' });
   }
 };
@@ -50,7 +52,7 @@ export const createItem = async (req, res) => {
     res.status(201).json(newItem);
   } catch(error) {
     console.error(error);
-    res.status(500).json({ error: '서버오류 발생' });
+    res.status(500).json({ error: '아이템 생성중 오류 발생' });
   }
 };
 
