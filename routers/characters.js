@@ -1,10 +1,10 @@
 import express from 'express';
 import { getCharacter,createCharacter,deleteCharacter } from '../controllers/charactersController.js';
 
-const charactersrouter = express.Router();
+const characterRouter = express.Router();
 
-charactersrouter.get('/:id',getCharacter);
-charactersrouter.post('/',createCharacter);
-charactersrouter.delete('/:id',deleteCharacter);
+characterRouter.get('/:id',getCharacter);
+characterRouter.post('/',createCharacter);
+characterRouter.delete('/:id',deleteCharacter);
 
-export default charactersrouter;
+export default characterRouter;

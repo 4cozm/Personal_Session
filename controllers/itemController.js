@@ -36,8 +36,9 @@ export const createItem = async (req, res) => {
     return res.status(400).json({ error: '아이템 이름이 이미 존재합니다' });
 
   try {
-    let lastItemId = await item.findOne({}, { sort: { _id: -1 } });
-    if (lastItemId == null) {
+    let lastItemId = await item.findOne({},{ _id: 0, item_code: 1 }, { sort: { item_code: -1 }});
+    lastItemId = lastItemId.item_code;
+    if (!lastItemId) {
       lastItemId = 0;
     }
     const newItem = new item({
@@ -47,7 +48,8 @@ export const createItem = async (req, res) => {
     });
     await newItem.save();
     res.status(201).json(newItem);
-  } catch {
+  } catch(error) {
+    console.error(error);
     res.status(500).json({ error: '서버오류 발생' });
   }
 };

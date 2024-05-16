@@ -6,7 +6,7 @@ import character from '../models/characterModel.js';
 export const getCharacter = async (req, res) => {
   const characterId = req.params.id;
   try {
-    const find = await character.findOne({ character_id: characterId });
+    const find = await character.findOne({ id: characterId }).select('-_id name health power');
     if (!find)
       return res
         .status(404)
@@ -22,36 +22,39 @@ export const createCharacter = async (req, res) => {
   if (!name)
     return res.status(400).json({ error: '캐릭터 이름을 입력해주세요' });
 
-  const existingCharacter = await character.findOne({ name });
-    if (existingCharacter) {
-      return res.status(400).json({ error: '캐릭터 이름이 이미 존재합니다' });
-    }
-
   try {
-    let lastId = await character.findOne({}, { sort: { _id: -1 } });
-    if (lastId == null) lastId = 0;
+    let lastCharacter = await character.findOne({},{ _id: 0, id: 1 }, { sort: { id: -1 }});
+    let newId = lastCharacter ? lastCharacter.id+1 : 1;
+    const newCharacter = new character({
+      id: newId,
+      name,
+      health: 500,
+      power: 100,
+    });
 
-    const newCharacter = new character({ id: lastId + 1, name, health:500, power:100 });
     await newCharacter.save();
-    res.status(201).json('캐릭터 생성됨! : ' + newPlayer.character_id);
-  } catch {
+    res.status(201).json('캐릭터 생성됨! : ' + newCharacter.id);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: '캐릭터 생성중 오류 발생' });
   }
 };
 
-
 export const deleteCharacter = async (req, res) => {
-    //id 값을 params로 전달받아 해당하는 ID의 캐릭터를 삭제
-    const characterId = req.params;
-  
-    try{
-        const deleteCharacter = await character.findOneAndDelete({id:characterId});
-        if(!deleteCharacter){
-            return res.status(400).json({error:"삭제할 캐릭터를 찾지 못하였습니다."});
-        }
-        res.status(200).json({message:"캐릭터가 삭제되었습니다"});
-    } catch(error){
-        res.status(500).json({error:"캐릭터 삭제중 오류 발생"});
+  //id 값을 params로 전달받아 해당하는 ID의 캐릭터를 삭제
+  const characterId = req.params.id;
+  try {
+    const deleteCharacter = await character.findOneAndDelete({
+      id: characterId,
+    });
+    if (!deleteCharacter) {
+      return res
+        .status(400)
+        .json({ error: '삭제할 캐릭터를 찾지 못하였습니다.' });
     }
-  };
-  
+    res.status(200).json({ message: '캐릭터가 삭제되었습니다' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '캐릭터 삭제중 오류 발생' });
+  }
+};
