@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 const mongodb_password = process.env.mongodb_password;
 let db; //데이터베이스 연결 저장하는 전역변수
 const playerCollections = db.collection('player');
-await playerCollections.createIndex({ name: 1 }, { unique: true }); //중복되지 않도록 보장
+await playerCollections.createIndex({ name: 1 }, { unique: true }); //이름에 고유 인덱스 부여,중복되지 않도록 보장
 const itemCollections = db.collection('item');
 const app = express();
 
@@ -13,10 +13,13 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', async (req, res) => {});
 
-app.post('/create', async (req, res) => {
-  const id = await (playerCollections.countDocuments() + 1); //이미 존재하는 캐릭터의 개수 +1을 하여 생성
+app.post('/api/characters', async (req, res) => {
+  if (!req.body.name)
+    return res.status(400).json({ error: '캐릭터 이름을 입력해주세요' });
+ let lastId = await playerCollections.findOne({}, { sort: { _id: -1 } });
+  if (lastId == null) lastId = 1;
   const newPlayer = {
-    character_id: id,
+    character_id: lastId + 1, //가장 최근 생성된 캐릭터의 ID값에 +1을 하여 생성
     name: req.body.name,
     health: 500,
     power: 100,
@@ -24,6 +27,17 @@ app.post('/create', async (req, res) => {
 
   await playerCollections.insertOne(newPlayer); //데이터를 삽입전 자동으로 중복확인 이루어짐
   res.status(201).json('캐릭터 생성됨! : ' + newPlayer.character_id);
+});
+app.delete('/api/characters/:id', async (req, res) => {
+  //id 값을 params로 전달받아 해당하는 ID의 캐릭터를 삭제
+  const characterId = req.params.id;
+
+  try {
+    await playerCollections.deleteOne({ character_id: characterId });
+    res.status(200).json({ message: '삭제성공' });
+  } catch (error) {
+    res.status(500).json({ error: '캐릭터 삭제 중 오류 발생' });
+  }
 });
 
 async function startServer() {
