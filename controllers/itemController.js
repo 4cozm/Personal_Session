@@ -17,11 +17,12 @@ export const getItemList = async (req, res) => {
 export const findItem = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+id);
-    const result = await item.findOne({ item_code:id }).select('-_id item_name item_stat');
+    const result = await item
+      .findOne({ item_code: id })
+      .select('-_id item_name item_stat');
     !result ? res.status(404).json('아이템이 없습니다') : res.json(result);
   } catch (error) {
-    console.error(error); 
+    console.error(error);
     res.status(500).json({ error: '아이템 정보 가져오는중 오류 발생' });
   }
 };
@@ -38,7 +39,11 @@ export const createItem = async (req, res) => {
     return res.status(400).json({ error: '아이템 이름이 이미 존재합니다' });
 
   try {
-    let lastItemId = await item.findOne({},{ _id: 0, item_code: 1 }, { sort: { item_code: -1 }});
+    let lastItemId = await item.findOne(
+      {},
+      { _id: 0, item_code: 1 },
+      { sort: { item_code: -1 } },
+    );
     lastItemId = lastItemId.item_code;
     if (!lastItemId) {
       lastItemId = 0;
@@ -50,23 +55,29 @@ export const createItem = async (req, res) => {
     });
     await newItem.save();
     res.status(201).json(newItem);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: '아이템 생성중 오류 발생' });
   }
 };
-
 export const patchItem = async (req, res) => {
   try {
     const item_code = req.params.id;
-    const {
-      item_name,
-      item_stat: { health = 0, power = 0 },
-    } = req.body;
-
-    const updatedItem = await item.findByIdAndUpdate(
-      item_code,
-      { item_name, item_stat: { health, power } },
+    const { item_name, item_stat } = req.body;
+    let health = 0;
+    let power = 0;
+    if (item_stat) {
+      ({ health = 0, power = 0 } = item_stat);
+    }
+    const updatedItem = await item.findOneAndUpdate(
+      { item_code: item_code }, // item_code로 문서를 찾습니다.
+      {
+        item_name,
+        item_stat: {
+          health,
+          power,
+        },
+      },
       {
         new: true,
       },
@@ -74,6 +85,7 @@ export const patchItem = async (req, res) => {
 
     res.status(200).json(updatedItem);
   } catch (error) {
-    res.status(500).json({ error: '서버 오류 발생' });
+    console.error(error);
+    res.status(500).json({ error: '아이템 수정기능 오류' });
   }
 };
