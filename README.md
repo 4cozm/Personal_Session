@@ -4,20 +4,18 @@
 
 # API 명세서
 
-## 개요
-API에 대한 간략한 설명.
-
 ## 엔드포인트
 
-| 메서드 | 엔드포인트       | 설명                  | 파라미터    | 응답       |
-|--------|-----------------|-----------------------|------------|------------|
-| GET    | /example        | 예제 데이터 조회      | `param1`: 설명 | `{ "key": "value" }` |
-| POST   | /example        | 예제 데이터 생성      | `param1`: 설명<br>`param2`: 설명 | `{ "key": "value" }` |
-| PUT    | /example/{id}   | 예제 데이터 수정      | `param1`: 설명<br>`param2`: 설명 | `{ "key": "value" }` |
-| DELETE | /example/{id}   | 예제 데이터 삭제      | `param1`: 설명 | `{ "key": "value" }` |
+| 메서드 | 엔드포인트         | 설명           | 요청 예시                             | 응답 예시                             |
+|--------|-------------------|----------------|--------------------------------------|--------------------------------------|
+| POST   | /api/characters   | 캐릭터 생성    | `{ "name": "호호이모" }`              | `{ "캐릭터 생성됨!": 3 }`            |
+| DELETE | /api/characters/:id | 캐릭터 삭제  |                                      | `{ "message": "캐릭터가 삭제되었습니다" }` |
+| GET    | /api/characters/:id | 캐릭터 상세 조회 |                                      | `{ "name": "후후삼촌", "health": 500, "power": 100 }` |
+| POST   | /api/items        | 아이템 생성    | `{ "item_name": "무기12", "item_stat": { "health": 10, "power": 0 } }` | `{ "item_code": 3, "item_name": "무기12", "item_stat": { "health": 10, "power": 0 }, "_id": "6646133a0826abb9cc2de89a", "__v": 0 }` |
+| GET    | /api/items/:id    | 아이템 상세 조회 |                                      | `{ "item_stat": { "health": 10, "power": 5 }, "item_name": "무기" }` |
+| GET    | /api/items        | 아이템 모두 조회 |                                      | `[ { "item_code": 1, "item_name": "쩌는무기" }, { "item_code": 2, "item_name": "무기2" } ]` |
+| PATCH  | /api/items/:id    | 아이템 데이터 수정 | `{ "item_name": "쩌는무기", "item_stat": { "health": 50, "power": 1 } }` | `{ "item_stat": { "health": 50, "power": 1 }, "_id": "6645c7de8da0092a1660bc32", "item_code": 1, "item_name": "쩌는무기", "__v": 0 }` |
 
-## 인증
-인증에 대한 설명 (해당하는 경우).
 
 ## 오류 코드
 
